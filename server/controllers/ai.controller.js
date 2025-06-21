@@ -34,7 +34,7 @@ export const chatbot = async (req, res) => {
     }
 
     const data = await response.json();
-    console.log("AI Response:", data);
+    // console.log("AI Response:", data);
     const aiResponse = data.choices?.[0]?.message?.content || "Sorry, I couldn't understand that.";
 
     res.status(200).json({ response: aiResponse });
