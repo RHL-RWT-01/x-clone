@@ -9,7 +9,6 @@ import { FaLink } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import { useQuery } from "@tanstack/react-query";
 
-
 import Posts from "../components/common/Posts";
 import ProfileHeaderSkeleton from "../components/skeletons/ProfileHeaderSkeleton";
 import { formatMemberSinceDate } from "../utils/date";

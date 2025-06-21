@@ -9,6 +9,9 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Notification from "./pages/Notification";
 import Profile from "./pages/Profile";
+import Sidebar from "./components/common/Sidebar";
+import RightPanel from "./components/common/RightPanel";
+import GrokChatbot from "./components/common/RightPanelChatbot";
 
 function App() {
   const { data: authUser, isLoading } = useQuery({
@@ -22,7 +25,7 @@ function App() {
         if (!res.ok) {
           throw new Error(data.error || "Something went wrong");
         }
-        console.log("authUser is here:", data);
+        // console.log("authUser is here:", data);
         return data;
       } catch (error) {
         throw new Error(error);
@@ -66,6 +69,7 @@ function App() {
         />
       </Routes>
       {authUser && <RightPanel />}
+      <GrokChatbot/>
       <Toaster />
     </div>
   );
