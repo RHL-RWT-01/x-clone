@@ -5,6 +5,8 @@ import { IoCloseSharp } from "react-icons/io5";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-hot-toast";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const CreatePost = () => {
 	const [text, setText] = useState("");
 	const [img, setImg] = useState(null);
@@ -21,10 +23,12 @@ const CreatePost = () => {
 	} = useMutation({
 		mutationFn: async ({ text, img }) => {
 			try {
-				const res = await fetch("/api/posts/create", {
+				const res = await fetch(`${BASE_URL}/api/posts/create`, {
 					method: "POST",
+          credentials: "include",
 					headers: {
 						"Content-Type": "application/json",
+            
 					},
 					body: JSON.stringify({ text, img }),
 				});

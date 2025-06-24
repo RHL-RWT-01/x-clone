@@ -4,6 +4,8 @@ import { toast } from "react-hot-toast";
 import { RiRobot2Fill } from "react-icons/ri";
 import { FiLoader, FiSend } from "react-icons/fi";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const GrokAssistant = ({ post }) => {
   const [query, setQuery] = useState("Explain this post");
   const [response, setResponse] = useState("");
@@ -11,8 +13,9 @@ const GrokAssistant = ({ post }) => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async () => {
-      const res = await fetch("/api/ai/chat", {
+      const res = await fetch(`${BASE_URL}/api/ai/chat`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           message: `Post: """${post.text}"""\n\nQuestion: ${query}`,

@@ -13,6 +13,9 @@ import Posts from "../components/common/Posts";
 import ProfileHeaderSkeleton from "../components/skeletons/ProfileHeaderSkeleton";
 import { formatMemberSinceDate } from "../utils/date";
 import useFollow from "../hooks/useFollow";
+
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 import useUpdateUserProfile from "../hooks/useUpdateUserProfile";
 const Profile = () => {
   const [coverImg, setCoverImg] = useState(null);
@@ -36,7 +39,9 @@ const Profile = () => {
     queryKey: ["userProfile"],
     queryFn: async () => {
       try {
-        const res = await fetch(`/api/users/profile/${username}`);
+        const res = await fetch(`${BASE_URL}/api/users/profile/${username}`,{
+          credentials: "include",
+        });
         const data = await res.json();
         if (!res.ok) {
           throw new Error(data.error || "Something went wrong");
@@ -51,7 +56,9 @@ const Profile = () => {
   const { data: postCount } = useQuery({
     queryKey: ["userPostCount", username],
     queryFn: async () => {
-      const res = await fetch(`/api/posts/count/${username}`);
+      const res = await fetch(`${BASE_URL}/api/posts/count/${username}`,{
+        credentials: "include",
+      });
       const data = await res.json();
       if (!res.ok) {
         throw new Error(data.error || "Failed to fetch post count");

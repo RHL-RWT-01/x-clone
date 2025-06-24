@@ -8,14 +8,19 @@ import { FaUser } from "react-icons/fa";
 import { FaHeart } from "react-icons/fa6";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import ProfileHeaderSkeleton from "../components/skeletons/ProfileHeaderSkeleton";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+// This component fetches and displays notifications for the user.
+// It allows the user to delete all notifications at once.
 const Notification = () => {
 	const queryClient = useQueryClient();
 	const { data: notifications, isLoading } = useQuery({
 		queryKey: ["notifications"],
 		queryFn: async () => {
 			try {
-				const res = await fetch("/api/notifications");
+				const res = await fetch(`${BASE_URL}/api/notifications`,{
+          credentials: "include", 
+        });
 				const data = await res.json();
 				if (!res.ok) throw new Error(data.error || "Something went wrong");
 				return data;
@@ -28,8 +33,9 @@ const Notification = () => {
 	const { mutate: deleteNotifications } = useMutation({
 		mutationFn: async () => {
 			try {
-				const res = await fetch("/api/notifications", {
+				const res = await fetch(`${BASE_URL}/api/notifications`, {
 					method: "DELETE",
+          credentials: "include",
 				});
 				const data = await res.json();
 

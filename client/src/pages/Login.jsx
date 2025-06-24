@@ -8,6 +8,8 @@ import { MdPassword } from "react-icons/md";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import XSvg from "../components/svgs/X";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const Login = () => {
 	const [formData, setFormData] = useState({
 		username: "",
@@ -23,8 +25,9 @@ const Login = () => {
 	} = useMutation({
 		mutationFn: async ({ username, password }) => {
 			try {
-				const res = await fetch("/api/auth/login", {
+				const res = await fetch(`${BASE_URL}/api/auth/login`, {
 					method: "POST",
+					credentials: "include",
 					headers: {
 						"Content-Type": "application/json",
 					},

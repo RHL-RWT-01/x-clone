@@ -9,6 +9,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import XSvg from "../components/svgs/X";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL; 
+
 const Signup = () => {
 	const [formData, setFormData] = useState({
 		email: "",
@@ -22,11 +24,12 @@ const Signup = () => {
 	const { mutate, isError, isPending, error } = useMutation({
 		mutationFn: async ({ email, username, fullName, password }) => {
 			try {
-				const res = await fetch("/api/auth/signup", {
+				const res = await fetch(`${BASE_URL}/api/auth/signup`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
 					},
+					credentials: "include",
 					body: JSON.stringify({ email, username, fullName, password }),
 				});
 
@@ -41,16 +44,12 @@ const Signup = () => {
 		},
 		onSuccess: () => {
 			toast.success("Account created successfully");
-
-			{
-				/* Added this line below, after recording the video. I forgot to add this while recording, sorry, thx. */
-			}
 			queryClient.invalidateQueries({ queryKey: ["authUser"] });
 		},
 	});
 
 	const handleSubmit = (e) => {
-		e.preventDefault(); // page won't reload
+		e.preventDefault();
 		mutate(formData);
 	};
 
