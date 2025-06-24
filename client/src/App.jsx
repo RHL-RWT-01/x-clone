@@ -12,14 +12,16 @@ import Profile from "./pages/Profile";
 import Sidebar from "./components/common/Sidebar";
 import RightPanel from "./components/common/RightPanel";
 import GrokChatbot from "./components/common/RightPanelChatbot";
-
+const BASE_URL = import.meta.env.VITE_API_BASE_URL; 
 function App() {
   const { data: authUser, isLoading } = useQuery({
     // we use queryKey to give a unique name to our query and refer to it later
     queryKey: ["authUser"],
     queryFn: async () => {
       try {
-        const res = await fetch("/api/auth/me");
+        const res = await fetch(`${BASE_URL}/api/auth/me`,{
+          credentials: "include", // to include cookies in the request
+        });
         const data = await res.json();
         if (data.error) return null;
         if (!res.ok) {
