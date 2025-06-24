@@ -2,7 +2,7 @@ import Post from "./Post";
 import PostSkeleton from "../skeletons/PostSkeleton";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-
+const BASE_URL = import.meta.env.VITE_API_BASE_URL; 
 const Posts = ({ feedType, username, userId }) => {
   const getPostEndpoint = () => {
     switch (feedType) {
@@ -30,7 +30,9 @@ const Posts = ({ feedType, username, userId }) => {
     queryKey: ["posts"],
     queryFn: async () => {
       try {
-        const res = await fetch(POST_ENDPOINT);
+        const res = await fetch(`${BASE_URL}${POST_ENDPOINT}`,{
+          credentials: "include",
+        });
         const data = await res.json();
 
         if (!res.ok) {

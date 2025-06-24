@@ -11,6 +11,7 @@ import { toast } from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
 import { formatPostDate } from "../../utils/date";
 import GrokAssistant from "../../pages/GrokAssistant";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Post = ({ post }) => {
   const [comment, setComment] = useState("");
@@ -26,17 +27,17 @@ const Post = ({ post }) => {
   const { mutate: deletePost, isPending: isDeleting } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch(`/api/posts/${post._id}`, {
+        const res = await fetch(`${BASE_URL}/api/posts/${post._id}`, {
           method: "DELETE",
+          credentials: "include",
         });
         const data = await res.json();
-
         if (!res.ok) {
           throw new Error(data.error || "Something went wrong");
         }
         return data;
       } catch (error) {
-        throw new Error(error);
+        throw new Error(error.message || "Failed to delete post");
       }
     },
     onSuccess: () => {
@@ -48,8 +49,9 @@ const Post = ({ post }) => {
   const { mutate: likePost, isPending: isLiking } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch(`/api/posts/like/${post._id}`, {
+        const res = await fetch(`${BASE_URL}/api/posts/like/${post._id}`, {
           method: "POST",
+          credentials: "include",
         });
         const data = await res.json();
         if (!res.ok) {
@@ -61,10 +63,6 @@ const Post = ({ post }) => {
       }
     },
     onSuccess: (updatedLikes) => {
-      // this is not the best UX, bc it will refetch all posts
-      // queryClient.invalidateQueries({ queryKey: ["posts"] });
-
-      // instead, update the cache directly for that post
       queryClient.setQueryData(["posts"], (oldData) => {
         return oldData.map((p) => {
           if (p._id === post._id) {
@@ -82,11 +80,12 @@ const Post = ({ post }) => {
   const { mutate: commentPost, isPending: isCommenting } = useMutation({
     mutationFn: async () => {
       try {
-        const res = await fetch(`/api/posts/comment/${post._id}`, {
+        const res = await fetch(`${BASE_URL}/api/posts/comment/${post._id}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
           body: JSON.stringify({ text: comment }),
         });
         const data = await res.json();

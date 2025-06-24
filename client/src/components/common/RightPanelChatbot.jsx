@@ -3,6 +3,7 @@ import { IoMdChatbubbles, IoMdClose } from "react-icons/io";
 import { FiSend, FiRefreshCcw } from "react-icons/fi";
 import { FaRobot } from "react-icons/fa";
 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL; 
 const RightPanelChatbot = () => {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
@@ -20,8 +21,9 @@ const RightPanelChatbot = () => {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/ai/chat", {
+      const res = await fetch(`${BASE_URL}/api/ai/chat`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: input }),
       });
