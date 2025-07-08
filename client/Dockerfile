@@ -16,4 +16,4 @@ RUN npm install -g serve
 
 # Serve the build output from 'dist' directory
 EXPOSE 3000
-CMD ["serve", "-s", "dist", "-l", "3000"]
+CMD ["sh", "-c", "serve -s dist -l $PORT"]
