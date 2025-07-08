@@ -1,56 +1,66 @@
 import { useState, useRef, useEffect } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { IoMdChatbubbles, IoMdClose } from "react-icons/io";
-import { FiSend, FiRefreshCcw } from "react-icons/fi";
+import { FiSend, FiRefreshCcw, FiLoader } from "react-icons/fi";
 import { FaRobot } from "react-icons/fa";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL; 
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const RightPanelChatbot = () => {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([
     { from: "bot", text: "Hi there! 👋 Ask me anything." },
   ]);
   const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
   const containerRef = useRef(null);
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
-    const userMessage = { from: "user", text: input };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
-    setLoading(true);
-
-    try {
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (userInput) => {
       const res = await fetch(`${BASE_URL}/api/ai/chat`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ message: userInput, mode: "chat" }),
       });
       const data = await res.json();
-      setMessages((prev) => [...prev, { from: "bot", text: data.response }]);
-    } catch (err) {
+      if (!res.ok) throw new Error(data.error || "AI failed");
+      return data.response;
+    },
+    onSuccess: (botResponse) => {
+      setMessages((prev) => [...prev, { from: "bot", text: botResponse }]);
+    },
+    onError: () => {
       setMessages((prev) => [
         ...prev,
         { from: "bot", text: "⚠️ Something went wrong." },
       ]);
-    } finally {
-      setLoading(false);
-    }
+    },
+  });
+
+  // Send handler
+  const handleSend = () => {
+    if (!input.trim()) return;
+
+    const userMessage = { from: "user", text: input };
+    setMessages((prev) => [...prev, userMessage]);
+
+    const toSend = input;
+    setInput("");
+    mutate(toSend);
   };
 
+  // Auto-scroll
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
-  }, [messages, loading]);
+  }, [messages, isPending]);
 
   return (
     <div className="fixed bottom-5 right-5 z-60">
-      {/* Toggle Button */}
       {!open && (
         <button
-          className="bg-blue-950 text-white p-3 rounded-xl shadow-lg hover:scale-140 transition border-spacing-2 border border-gray-700 flex items-center justify-center"
+          className="bg-blue-950 text-white p-3 rounded-xl shadow-lg hover:scale-140 transition border border-gray-700 flex items-center justify-center"
           onClick={() => setOpen(true)}
           title="Open Grok"
         >
@@ -58,7 +68,6 @@ const RightPanelChatbot = () => {
         </button>
       )}
 
-      {/* Chat Window */}
       {open && (
         <div className="w-[400px] h-[480px] bg-[#0f0f0f] text-white rounded-xl shadow-xl border border-gray-700 flex flex-col animate-slideUp backdrop-blur-md">
           {/* Header */}
@@ -69,7 +78,11 @@ const RightPanelChatbot = () => {
             </h2>
             <div className="flex gap-3 text-gray-400">
               <button
-                onClick={() => setMessages([])}
+                onClick={() =>
+                  setMessages([
+                    { from: "bot", text: "Hi there! 👋 Ask me anything." },
+                  ])
+                }
                 className="hover:text-white"
                 title="Reset"
               >
@@ -102,9 +115,9 @@ const RightPanelChatbot = () => {
                 {msg.text}
               </div>
             ))}
-            {loading && (
-              <p className="text-gray-500 text-xs animate-pulse">
-                Grok is thinking…
+            {isPending && (
+              <p className="text-gray-500 text-xs flex items-center gap-2 animate-pulse">
+                <FiLoader className="animate-spin" /> Grok is thinking…
               </p>
             )}
           </div>
@@ -118,10 +131,16 @@ const RightPanelChatbot = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                disabled={isPending}
               />
               <button
                 onClick={handleSend}
-                className="px-3 py-2 bg-blue-600 hover:bg-blue-500 rounded-md text-white flex items-center gap-1"
+                disabled={isPending}
+                className={`px-3 py-2 rounded-md text-white flex items-center gap-1 ${
+                  isPending
+                    ? "bg-blue-900 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-500"
+                }`}
               >
                 <FiSend size={16} />
               </button>

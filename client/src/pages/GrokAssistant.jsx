@@ -12,25 +12,27 @@ const GrokAssistant = ({ post }) => {
   const [cutoff, setCutoff] = useState(false);
 
   const { mutate, isPending } = useMutation({
-    mutationFn: async () => {
-      const res = await fetch(`${BASE_URL}/api/ai/chat`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: `Post: """${post.text}"""\n\nQuestion: ${query}`,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "AI failed");
-      return data;
-    },
-    onSuccess: (data) => {
-      setResponse(data.response);
-      setCutoff(data.cutoff);
-    },
-    onError: (err) => toast.error(err.message),
-  });
+  mutationFn: async () => {
+    const res = await fetch(`${BASE_URL}/api/ai/chat`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: `Post: """${post.text}"""\n\nQuestion: ${query}`,
+        mode: "explain"
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "AI failed");
+    return data;
+  },
+  onSuccess: (data) => {
+    setResponse(data.response);
+    setCutoff(data.cutoff);
+  },
+  onError: (err) => toast.error(err.message),
+});
+
 
   return (
     <>
