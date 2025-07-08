@@ -4,14 +4,30 @@ dotenv.config();
 
 export const chatbot = async (req, res) => {
   try {
-    const { message } = req.body;
+    const { message, mode } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: "Message is required" });
     }
 
-    const systemPrompt = "You are an intelligent assistant that explains social media posts and user messages clearly, Explain the input clearly but briefly. Keep it under 200 words i.e 2-3 sentences or according to post length.If the input is not understandable, respond with 'Sorry, I couldn't understand that.Don't overexplain.it";
+    // Define different system prompts
+    let systemPrompt = "";
 
+    if (mode === "explain") {
+      systemPrompt = `
+        You are an intelligent assistant that explains social media posts clearly.
+        Explain the input clearly but briefly (2–3 sentences, under 200 words).
+        If the input is unclear, say "Sorry, I couldn't understand that.".
+      `;
+    } else {
+      // Default chat mode prompt
+      systemPrompt = `
+        You are a helpful, friendly assistant who answers user questions conversationally.
+        Respond naturally without trying to explain a post.
+      `;
+    }
+
+    // Make the OpenRouter request
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -34,7 +50,6 @@ export const chatbot = async (req, res) => {
     }
 
     const data = await response.json();
-    // console.log("AI Response:", data);
     const aiResponse = data.choices?.[0]?.message?.content || "Sorry, I couldn't understand that.";
 
     res.status(200).json({ response: aiResponse });
@@ -44,3 +59,4 @@ export const chatbot = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
